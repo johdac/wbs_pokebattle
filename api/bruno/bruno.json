@@ -1,0 +1,9 @@
+{
+  "version": "1",
+  "name": "wbs_10_pokemon_api",
+  "type": "collection",
+  "ignore": [
+    "node_modules",
+    ".git"
+  ]
+}
