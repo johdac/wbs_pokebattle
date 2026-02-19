@@ -4,8 +4,36 @@ import { User, RefreshToken } from "#models";
 import bcrypt from "bcrypt";
 import { createTokens } from "#utils";
 import jwt from "jsonwebtoken";
+import type { registerSchema, loginSchema, refreshTokenSchema } from "#schemas";
+import { z } from "zod";
+import type { Types } from "mongoose";
 
-export const register: RequestHandler = async (req, res) => {
+type registerDTO = z.infer<typeof registerSchema>;
+type loginDTO = z.infer<typeof loginSchema>;
+type refreshTokenDTO = z.infer<typeof refreshTokenSchema>;
+interface SuccessMessage {
+  message: string;
+}
+
+interface resBodyTokenDTO extends SuccessMessage {
+  accessToken: string;
+  refreshToken: string;
+}
+
+type UserProfileDTO = {
+  email: string;
+  username: string;
+  _id: InstanceType<typeof Types.ObjectId>;
+  roles: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export const register: RequestHandler<
+  {},
+  resBodyTokenDTO,
+  registerDTO
+> = async (req, res) => {
   const { username, email, password } = req.body;
   const emailExists = await User.exists({ email });
   if (emailExists)
@@ -28,13 +56,17 @@ export const register: RequestHandler = async (req, res) => {
   });
 
   const [refreshToken, accessToken] = await createTokens(user);
-
+  if (!refreshToken || !accessToken)
+    throw new Error("Promblem creating Tokens", { cause: { status: 500 } });
   res
     .status(201)
     .json({ message: `${username} Registered!`, accessToken, refreshToken });
 };
 
-export const login: RequestHandler = async (req, res) => {
+export const login: RequestHandler<{}, resBodyTokenDTO, loginDTO> = async (
+  req,
+  res,
+) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select("+password");
 
@@ -48,7 +80,8 @@ export const login: RequestHandler = async (req, res) => {
   await RefreshToken.deleteMany({ userId: user._id });
   // generate refresh and access tokens
   const [refreshToken, accessToken] = await createTokens(user);
-
+  if (!refreshToken || !accessToken)
+    throw new Error("Promblem creating Tokens", { cause: { status: 500 } });
   res.json({
     message: "Welcome back! Ready for battle?",
     refreshToken,
@@ -56,7 +89,11 @@ export const login: RequestHandler = async (req, res) => {
   });
 };
 
-export const refresh: RequestHandler = async (req, res) => {
+export const refresh: RequestHandler<
+  {},
+  resBodyTokenDTO,
+  refreshTokenDTO
+> = async (req, res) => {
   const { refreshToken } = req.body;
   const storedToken = await RefreshToken.findOne({ token: refreshToken });
   if (!storedToken)
@@ -66,6 +103,8 @@ export const refresh: RequestHandler = async (req, res) => {
   if (!user)
     throw new Error("User account not found!", { cause: { status: 403 } });
   const [newRefreshToken, newAccessToken] = await createTokens(user);
+  if (!newRefreshToken || !newAccessToken)
+    throw new Error("Promblem creating Tokens", { cause: { status: 500 } });
   res.json({
     message: "Refreshed",
     refreshToken: newRefreshToken,
@@ -73,13 +112,21 @@ export const refresh: RequestHandler = async (req, res) => {
   });
 };
 
-export const logout: RequestHandler = async (req, res) => {
+export const logout: RequestHandler<
+  {},
+  SuccessMessage,
+  refreshTokenDTO
+> = async (req, res) => {
   const { refreshToken } = req.body;
   await RefreshToken.deleteOne({ token: refreshToken });
   res.json({ message: "You are signed out successfully! " });
 };
 
-export const me: RequestHandler = async (req, res, next) => {
+export const me: RequestHandler<{}, UserProfileDTO> = async (
+  req,
+  res,
+  next,
+) => {
   const authHeader = req.header("authorization");
   console.log("authHeader:", authHeader);
   const accessToken = authHeader && authHeader.split(" ")[1];
@@ -101,7 +148,7 @@ export const me: RequestHandler = async (req, res, next) => {
 
     if (!user) throw new Error("User not found", { cause: { status: 404 } });
 
-    res.json({ user });
+    res.json(user);
   } catch (error) {
     if (error instanceof jwt.TokenExpiredError) {
       next(
