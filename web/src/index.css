@@ -59,7 +59,18 @@
   --color-type-steel: hsl(220 15% 60%);
   --color-type-normal: hsl(30 10% 55%);
 }
+@layer components {
+  .btn-default {
+    @apply bg-primary text-primary-foreground hover:bg-primary/90 px-4 py-2 rounded-xl;
+  }
+  .btn-added {
+    @apply opacity-50 bg-primary text-primary-foreground  px-4 py-2 rounded-xl;
+  }
 
+  .btn-link {
+    @apply text-primary underline-offset-4 hover:underline;
+  }
+}
 /* 3. Global Base Styles */
 @layer base {
   * {
