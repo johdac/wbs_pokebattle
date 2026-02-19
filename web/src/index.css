@@ -1,0 +1,111 @@
+@import "tailwindcss";
+@theme {
+  /* Fonts */
+  --font-sans: "Inter", ui-sans-serif, system-ui;
+  --font-orbitron: "Orbitron", sans-serif;
+
+  /* Theme Colors */
+  --color-background: hsl(222 47% 6%);
+  --color-foreground: hsl(210 40% 96%);
+
+  --color-card: hsl(222 47% 10%);
+  --color-card-foreground: hsl(210 40% 96%);
+
+  --color-primary: hsl(48 96% 53%);
+  --color-primary-foreground: hsl(222 47% 6%);
+
+  --color-secondary: hsl(222 30% 18%);
+  --color-secondary-foreground: hsl(210 40% 96%);
+
+  --color-muted: hsl(222 30% 14%);
+  --color-muted-foreground: hsl(215 20% 55%);
+
+  --color-accent: hsl(199 89% 48%);
+  --color-accent-foreground: hsl(222 47% 6%);
+
+  --color-destructive: hsl(0 72% 51%);
+  --color-destructive-foreground: hsl(210 40% 98%);
+
+  --color-border: hsl(222 30% 18%);
+  --color-input: hsl(222 30% 18%);
+  --color-ring: hsl(48 96% 53%);
+
+  /* Radius */
+  --radius-xl: 0.75rem;
+
+  /* Sidebar */
+  --color-sidebar-background: hsl(222 47% 8%);
+  --color-sidebar-foreground: hsl(210 40% 96%);
+  --color-sidebar-primary: hsl(48 96% 53%);
+  --color-sidebar-accent: hsl(222 30% 14%);
+
+  /* Type Colors */
+  --color-type-fire: hsl(14 89% 55%);
+  --color-type-water: hsl(210 85% 55%);
+  --color-type-grass: hsl(120 60% 45%);
+  --color-type-electric: hsl(48 96% 53%);
+  --color-type-psychic: hsl(330 70% 55%);
+  --color-type-ice: hsl(195 80% 65%);
+  --color-type-dragon: hsl(260 70% 55%);
+  --color-type-dark: hsl(240 10% 25%);
+  --color-type-fairy: hsl(340 60% 65%);
+  --color-type-fighting: hsl(15 80% 45%);
+  --color-type-flying: hsl(240 50% 65%);
+  --color-type-poison: hsl(280 60% 50%);
+  --color-type-ground: hsl(35 50% 45%);
+  --color-type-rock: hsl(40 30% 40%);
+  --color-type-bug: hsl(75 65% 40%);
+  --color-type-ghost: hsl(265 40% 45%);
+  --color-type-steel: hsl(220 15% 60%);
+  --color-type-normal: hsl(30 10% 55%);
+}
+
+/* 3. Global Base Styles */
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-orbitron);
+  }
+}
+
+/* 4. Custom Utilities */
+@layer utilities {
+  .glow-primary {
+    box-shadow: 0 0 20px hsl(48 96% 53% / 0.3);
+  }
+
+  .glow-accent {
+    box-shadow: 0 0 20px hsl(199 89% 48% / 0.3);
+  }
+
+  .gradient-hero {
+    background: linear-gradient(135deg, hsl(222 47% 6%), hsl(222 47% 12%));
+  }
+
+  .gradient-card {
+    background: linear-gradient(145deg, hsl(222 47% 12%), hsl(222 47% 8%));
+  }
+
+  .gradient-primary {
+    background: linear-gradient(135deg, hsl(48 96% 53%), hsl(36 100% 50%));
+  }
+
+  .text-gradient-primary {
+    background: linear-gradient(135deg, hsl(48 96% 53%), hsl(36 100% 50%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}
