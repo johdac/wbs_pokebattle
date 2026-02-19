@@ -1,19 +1,25 @@
 import "#db";
 import express from "express";
 import { errorHandler } from "#middleware";
-import { userRoutes } from "#routes";
+import { scoreRoutes } from "#routes";
 import cors from "cors";
 
 const app = express();
 const port = process.env.API_PORT;
 
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: process.env.CLIENT_BASE_URL,
+    credentials: true,
+    exposedHeaders: ["WWW-Authenticate"],
+  }),
+);
 app.use(express.json());
 
 app.route("/").get((req, res) => {
   res.json("Hello World");
 });
-app.use("/users", userRoutes);
+app.use("/scores", scoreRoutes);
 app.use("*splat", (req, res) => {
   throw new Error("Not found", { cause: { status: 404 } });
 });

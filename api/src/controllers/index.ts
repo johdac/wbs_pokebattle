@@ -1,1 +1,1 @@
-export * from "./userController.ts";
+export * from "./scoreController.ts";

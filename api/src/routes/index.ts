@@ -1,1 +1,1 @@
-export * from "./userRoutes.ts";
+export * from "./scoreRoutes.ts";
