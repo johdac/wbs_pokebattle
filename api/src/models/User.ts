@@ -2,7 +2,11 @@ import { Schema, model } from "mongoose";
 
 const userSchema = new Schema(
   {
-    username: { type: String, required: [true, "username is required"] },
+    username: {
+      type: String,
+      required: [true, "username is required"],
+      unique: true,
+    },
     password: {
       type: String,
       required: [true, "Password is required"],
@@ -16,8 +20,12 @@ const userSchema = new Schema(
       lowercase: true,
       trim: true,
     },
+    roles: {
+      type: [String],
+      default: ["user"],
+    },
   },
-  { timestamps: true },
+  { timestamps: { createdAt: true, updatedAt: true } },
 );
 
 export const User = model("User", userSchema);
