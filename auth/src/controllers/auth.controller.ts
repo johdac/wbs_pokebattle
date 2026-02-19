@@ -37,9 +37,7 @@ export const register: RequestHandler = async (req, res) => {
 export const login: RequestHandler = async (req, res) => {
   const { email, password } = req.body;
   const user = await User.findOne({ email }).select("+password");
-  console.log("Request body:", req.body);
-  console.log("Email:", email);
-  console.log("Password:", password);
+
   if (!user)
     throw new Error("Incorrect credentials", { cause: { status: 401 } });
 

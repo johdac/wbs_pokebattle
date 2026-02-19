@@ -2,4 +2,4 @@
 
 export { default as notFoundHandler } from "./notFoundHandler.ts";
 export { default as errorHandler } from "./errorHandler.ts";
-// - validateBodyZod.ts
+export { default as validateBodyZod } from "./validateBody.ts";
