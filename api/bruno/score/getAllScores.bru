@@ -7,11 +7,11 @@ meta {
 get {
   url: {{api}}/scores
   body: none
-  auth: bearer
+  auth: none
 }
 
-auth:bearer {
-  token: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJyb2xlcyI6WyJVU0VSIl0sImlhdCI6MTc3MTUxOTA0MCwiZXhwIjoxNzcxNTE5OTQwLCJzdWIiOiI2OTk1ZDNjMTJiOGUwZjAxMjFjZWYxODcifQ.ebMphtgONeGVPmw7x3h7Ynv-aOdBGwTMGzW49EyySN4
+headers {
+  Authorization: Bearer {{jwtToken}}
 }
 
 settings {
