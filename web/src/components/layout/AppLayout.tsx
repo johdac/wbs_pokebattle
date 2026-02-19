@@ -7,6 +7,7 @@ export const AppLayout = () => {
   return (
     <div>
       <Header></Header>
+
       {navigation.state === "loading" && <p>Loading...</p>}
 
       <main>
