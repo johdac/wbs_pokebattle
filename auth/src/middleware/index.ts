@@ -1,4 +1,5 @@
 // TODO: Implement
-// - notFoundHandler.ts
-// - errorHandler.ts
+
+export { default as notFoundHandler } from "./notFoundHandler.ts";
+export { default as errorHandler } from "./errorHandler.ts";
 // - validateBodyZod.ts

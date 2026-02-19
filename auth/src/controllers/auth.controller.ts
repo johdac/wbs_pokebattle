@@ -1,42 +1,118 @@
-import type { RequestHandler } from 'express';
-import { ACCESS_JWT_SECRET, REFRESH_TOKEN_TTL, SALT_ROUNDS } from '#config';
+import type { RequestHandler } from "express";
+import { ACCESS_JWT_SECRET, REFRESH_TOKEN_TTL, SALT_ROUNDS } from "#config";
+import { User, RefreshToken } from "#models";
+import bcrypt from "bcrypt";
+import { createTokens } from "#utils";
+import jwt from "jsonwebtoken";
 
 export const register: RequestHandler = async (req, res) => {
-  // TODO: Implement user registration
-  // Make sure to securely hash the password and storing only the hash
-  // Issue an access and a refresh token and put them in cookies
-  // Also store the refresh token in your db
+  const { username, email, password } = req.body;
+  const emailExists = await User.exists({ email });
+  if (emailExists)
+    throw new Error("The email is already registered", {
+      cause: { status: 409 },
+    });
+  const usernameExists = await User.exists({ username });
+  if (usernameExists)
+    throw new Error("Username is already taken, choose another one!", {
+      cause: { status: 409 },
+    });
+
+  const salt = await bcrypt.genSalt(SALT_ROUNDS);
+  const hashedPassword = await bcrypt.hash(password, salt);
+
+  const user = await User.create({
+    email,
+    password: hashedPassword,
+    username,
+  });
+
+  const [refreshToken, accessToken] = await createTokens(user);
+
+  res
+    .status(201)
+    .json({ message: `${username} Registered!`, accessToken, refreshToken });
 };
 
 export const login: RequestHandler = async (req, res) => {
-  // TODO: Implement user login
-  // Check if the user exists in the database
-  // Compare the password from the request with the hash in your db
-  // Send an Error "Incorrect credentials" if either no user is found (invalid email) or the password is incorrect
-  // Issue tokens and put them into cookies
-  // Also store the refresh token in your db
+  const { email, password } = req.body;
+  const user = await User.findOne({ email }).select("+password");
+  console.log("Request body:", req.body);
+  console.log("Email:", email);
+  console.log("Password:", password);
+  if (!user)
+    throw new Error("Incorrect credentials", { cause: { status: 401 } });
+
+  const match = await bcrypt.compare(password, user.password);
+
+  if (!match)
+    throw new Error("Incorrect credentials", { cause: { status: 401 } });
+  await RefreshToken.deleteMany({ userId: user._id });
+  // generate refresh and access tokens
+  const [refreshToken, accessToken] = await createTokens(user);
+
+  res.json({
+    message: "Welcome back! Ready for battle?",
+    refreshToken,
+    accessToken,
+  });
 };
 
 export const refresh: RequestHandler = async (req, res) => {
-  // TODO: Implement access token refresh and refresh token rotation
-  // Get the refresh token from the cookies and verify it
-  // Look up the refresh token in the database, throw and error, if it canot be found
-  // delete the old refresh token, look up the user and issue new tokens
-  // store the new refresh token in your db and send both access and refresh token via cookies
+  const { refreshToken } = req.body;
+  const storedToken = await RefreshToken.findOne({ token: refreshToken });
+  if (!storedToken)
+    throw new Error("Please sign in again", { cause: { status: 403 } });
+  await RefreshToken.findByIdAndDelete(storedToken._id);
+  const user = await User.findById(storedToken.userId);
+  if (!user)
+    throw new Error("User account not found!", { cause: { status: 403 } });
+  const [newRefreshToken, newAccessToken] = await createTokens(user);
+  res.json({
+    message: "Refreshed",
+    refreshToken: newRefreshToken,
+    accessToken: newAccessToken,
+  });
 };
 
 export const logout: RequestHandler = async (req, res) => {
-  // TODO: Implement logout by removing the tokens
-  // Get the tokens from the cookies
-  // Delete the refresh token from your database
-  // Clear both cookies
-  // A longer living access token, or a token in a higher risk use case would need to be put on a token blacklist - another entry in your db - and checked on validation
-  // Since our access tokens are valid for a couple of minutes the risk here is acceptable
+  const { refreshToken } = req.body;
+  await RefreshToken.deleteOne({ token: refreshToken });
+  res.json({ message: "You are signed out successfully! " });
 };
 
 export const me: RequestHandler = async (req, res, next) => {
-  // TODO: Implement a me handler
-  // Get the access token and use it to retrieve the user's data
-  // Make sure that the token is valid and not expired
-  // When expired, send a WWW-Authenticate Header with a 'token_expired' payload
+  const authHeader = req.header("authorization");
+  console.log("authHeader:", authHeader);
+  const accessToken = authHeader && authHeader.split(" ")[1];
+  if (!accessToken) throw Error("Please sign in", { cause: { status: 401 } });
+
+  try {
+    const decoded = jwt.verify(
+      accessToken,
+      ACCESS_JWT_SECRET,
+    ) as jwt.JwtPayload;
+    console.log(decoded);
+
+    if (!decoded.sub)
+      throw new Error("Invalid or expired access token", {
+        cause: { status: 401 },
+      });
+
+    const user = await User.findById(decoded.sub);
+
+    if (!user) throw new Error("User not found", { cause: { status: 404 } });
+
+    res.json({ user });
+  } catch (error) {
+    if (error instanceof jwt.TokenExpiredError) {
+      next(
+        new Error("Expired access token", {
+          cause: { status: 401, code: "ACCESS_TOKEN_EXPIRED" },
+        }),
+      );
+    } else {
+      next(new Error("Invalid access token.", { cause: { status: 401 } }));
+    }
+  }
 };
