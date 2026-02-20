@@ -1,1 +1,1 @@
-export * from "./userSchema.ts";
+export * from "./scoreSchema.ts";
