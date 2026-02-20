@@ -12,7 +12,7 @@ type PokemonCardProps = {
   index?: number;
 };
 
-const Card = ({ pokemon, index = 0 }: PokemonCardProps) => {
+export const Card = ({ pokemon, index = 0 }: PokemonCardProps) => {
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -50,5 +50,3 @@ const Card = ({ pokemon, index = 0 }: PokemonCardProps) => {
     </motion.div>
   );
 };
-
-export default Card;

@@ -84,3 +84,5 @@ export const getArtwork = (pokemon: PokemonDetail): string => {
 };
 
 export const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+const pokemonId = 25;
+export const pikachuImg = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemonId}.png`;

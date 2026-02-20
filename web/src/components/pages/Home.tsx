@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { motion } from "framer-motion";
 import { useState } from "react";
 import { fetchPokemonList, fetchPokemonDetail } from "@/lib/pokemon";
-import Card from "@/components/layout/Card";
+import { Card } from "@/components/layout/Card";
 
 const PAGE_SIZE = 24;
 
