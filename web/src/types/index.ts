@@ -8,4 +8,5 @@ export type GameState =
   | "gettingOpponentsInsult"
   | "ratingOpponentsInsult"
   | "gettingPlayersInsult"
-  | "ratingPlayersInsult";
+  | "ratingPlayersInsult"
+  | "gameOver";

@@ -1,4 +1,4 @@
-export const HealthBar = ({ value }: { value: number }) => {
+export const InsultBar = ({ value }: { value: number }) => {
   return (
     <div className="flex items-center gap-3">
       <span className="w-8 text-xs font-medium text-muted-foreground capitalize">

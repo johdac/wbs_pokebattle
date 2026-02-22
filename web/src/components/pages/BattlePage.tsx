@@ -14,17 +14,15 @@ export const BattlePage = () => {
   const [opponentPokemon, setOpponentPokemon] = useState<PokemonDetail | null>(
     null,
   );
-  const [playerInsulted, setPlayerInsulted] = useState(100);
-  const [opponentInsulted, setOpponentInsulted] = useState(100);
+  const [playerInsultLevel, setPlayerInsultLevel] = useState<number>(0);
+  const [opponentInsultLevel, setOpponentInsultLevel] = useState<number>(0);
   const [playerCreatedInsults, setPlayerCreatedInsults] = useState<Insult[]>(
     [],
   );
   const [opponentCreatedInsults, setOpponentCreatedInsults] = useState<
     Insult[]
   >([]);
-
-  // Get playerId from url params
-  const { id: playerId } = useParams<{ id: string }>();
+  const { id: playerId } = useParams<{ id: string }>(); // Get playerId from url params
 
   // Request data from pokemon api to get the total count of pokemon
   const { data: listData } = useQuery({
@@ -70,11 +68,6 @@ export const BattlePage = () => {
     setGameState("readyToStart");
   };
 
-  useEffect(() => {
-    if (!listData?.count) return;
-    fetchRandomOpponent();
-  }, [listData?.count]);
-
   const getInsult = async () => {
     const res = await fetch(`http://localhost:3000/ai/create-insult/`, {
       method: "POST",
@@ -88,21 +81,69 @@ export const BattlePage = () => {
     });
     if (!res.ok) throw new Error("Connection to API failed");
     const data = await res.json();
-    console.log(data);
     setOpponentCreatedInsults((prev) => {
       return [...prev, data];
     });
     setGameState("ratingOpponentsInsult");
   };
 
-  useEffect(() => {
-    if (gameState !== "gettingOpponentsInsult") return;
-    getInsult();
-  }, [gameState]);
+  const rateInsult = async (
+    actor: string,
+    receiver: string,
+    insult: string,
+  ) => {
+    const res = await fetch(`http://localhost:3000/ai/rate-insult/`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/JSON",
+      },
+      body: JSON.stringify({
+        actor: actor,
+        receiver: receiver,
+        insult: insult,
+      }),
+    });
+    if (!res.ok) throw new Error("Connection to API failed");
+    const data = await res.json();
+    return data;
+  };
 
   const startGame = () => {
     setGameState("gettingOpponentsInsult");
   };
+
+  useEffect(() => {
+    if (playerInsultLevel >= 100 || opponentInsultLevel >= 100) {
+      setGameState("gameOver");
+    } else if (gameState === "loadingOpponent" && listData?.count) {
+      fetchRandomOpponent();
+    } else if (gameState === "gettingOpponentsInsult") {
+      getInsult();
+    } else if (gameState === "ratingOpponentsInsult") {
+      const rate = async () => {
+        const insultDamage = await rateInsult(
+          opponentPokemon?.name!,
+          playerPokemon?.name!,
+          opponentCreatedInsults[opponentCreatedInsults.length - 1].insult,
+        );
+        setPlayerInsultLevel((prev) => prev + Number(insultDamage));
+        setGameState("gettingPlayersInsult");
+      };
+      rate();
+    } else if (gameState === "ratingPlayersInsult") {
+      const rate = async () => {
+        const insultDamage = await rateInsult(
+          playerPokemon?.name!,
+          opponentPokemon?.name!,
+          playerCreatedInsults[playerCreatedInsults.length - 1].insult,
+        );
+        setOpponentInsultLevel((prev) => prev + Number(insultDamage));
+        setGameState("gettingOpponentsInsult");
+      };
+      rate();
+    }
+    console.log(gameState);
+  }, [gameState, listData?.count]);
 
   return (
     <>
@@ -113,6 +154,11 @@ export const BattlePage = () => {
             {gameState === "loadingOpponent" && (
               <div className="absolute top-1/2 left-1/2 -ml-50">
                 <img src="/img/loading.png" className="w-100 " alt="" />
+              </div>
+            )}
+            {gameState === "gameOver" && (
+              <div className="absolute top-1/2 left-1/2 -ml-50 z-50">
+                <img src="/img/gameover.png" className="w-100 " alt="" />
               </div>
             )}
             {gameState === "readyToStart" && (
@@ -128,19 +174,23 @@ export const BattlePage = () => {
                 <div className="relative">
                   <PokemonInBattle
                     pokemon={opponentPokemon}
-                    health={opponentInsulted}
+                    insultLevel={opponentInsultLevel}
                     insults={opponentCreatedInsults}
                     isPlayer={false}
                     gameState={gameState}
+                    setGameState={setGameState}
+                    setPlayerCreatedInsults={setPlayerCreatedInsults}
                   />
                 </div>
                 <div className="relative">
                   <PokemonInBattle
                     pokemon={playerPokemon}
-                    health={playerInsulted}
+                    insultLevel={playerInsultLevel}
                     insults={playerCreatedInsults}
                     isPlayer={true}
                     gameState={gameState}
+                    setGameState={setGameState}
+                    setPlayerCreatedInsults={setPlayerCreatedInsults}
                   />
                 </div>
               </div>

@@ -52,6 +52,7 @@
     "typescript": "^5.9.3"
   },
   "dependencies": {
+    "@openai/agents": "^0.4.15",
     "cors": "^2.8.6",
     "express": "^5.2.1",
     "jsonwebtoken": "^9.0.3",
