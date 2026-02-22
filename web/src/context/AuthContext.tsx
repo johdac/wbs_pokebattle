@@ -1,0 +1,68 @@
+import { createContext, useContext, type ReactNode } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { authService } from "@/services/auth.ts";
+
+const AuthContext = createContext<AuthContextType | null>(null);
+
+export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  const queryClient = useQueryClient();
+
+  const {
+    data: user,
+    isLoading,
+    isFetching,
+  } = useQuery({
+    queryKey: ["authUser"],
+    queryFn: authService.getMe,
+    retry: false,
+    staleTime: 1000 * 60 * 5,
+    enabled: !!localStorage.getItem("accessToken"),
+  });
+
+  const loginMutation = useMutation({
+    mutationFn: authService.login,
+    onSuccess: (data) => {
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    },
+  });
+
+  const registerMutation = useMutation({
+    mutationFn: authService.register,
+    onSuccess: (data) => {
+      localStorage.setItem("accessToken", data.accessToken);
+      localStorage.setItem("refreshToken", data.refreshToken);
+      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+    },
+  });
+
+  const handleSignOut = async () => {
+    const token = localStorage.getItem("refreshToken");
+    if (token) await authService.logout(token);
+    localStorage.clear();
+    queryClient.setQueryData(["authUser"], null); // Clear user from cache
+  };
+
+  const value = {
+    user: user || null,
+    signedIn: !!user,
+    isLoading: isLoading || isFetching,
+    handleSignIn: async (creds: LoginInput) => {
+      await loginMutation.mutateAsync(creds);
+    },
+    handleRegister: async (data: RegisterFormState) => {
+      await registerMutation.mutateAsync(data);
+    },
+    handleSignOut,
+  };
+
+  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+};
+
+// eslint-disable-next-line react-refresh/only-export-components
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) throw new Error("useAuth must be used within AuthProvider");
+  return context;
+};
