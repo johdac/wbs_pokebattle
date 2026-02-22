@@ -1,0 +1,23 @@
+meta {
+  name: createInsult
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{api}}/ai/create-insult
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "playerPokemon": "wugtrio",
+    "opponentPokemon": "venusaur"
+  }
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

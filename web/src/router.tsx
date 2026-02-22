@@ -5,6 +5,7 @@ import { PokemonDetail } from "./components/pages/PokemonDetail";
 import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { Roster } from "./components/pages/Roster";
+import { BattlePage } from "./components/pages/BattlePage";
 
 export const router = createBrowserRouter([
   {
@@ -12,10 +13,14 @@ export const router = createBrowserRouter([
     children: [
       { path: "/", element: <Home></Home> },
       {
+        path: "/battle/:id",
+        element: <BattlePage></BattlePage>,
+      },
+      { path: "/login", element: <Login></Login> },
+      {
         path: "/pokemon/:id",
         element: <PokemonDetail></PokemonDetail>,
       },
-      { path: "/login", element: <Login></Login> },
       { path: "/register", element: <Register></Register> },
       { path: "/roster", element: <Roster></Roster> },
     ],
