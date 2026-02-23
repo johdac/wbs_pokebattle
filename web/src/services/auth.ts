@@ -12,10 +12,6 @@ export const authService = {
   },
   getMe: async () => {
     const { data } = await api.get<{ user: User }>("/me");
-<<<<<<< mahsa
-    console.log("Server Response for /me:", data);
-=======
->>>>>>> main
     return data.user || data || null;
   },
   logout: async (refreshToken: string) => {

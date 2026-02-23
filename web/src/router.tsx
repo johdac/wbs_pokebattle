@@ -8,7 +8,6 @@ import { Roster } from "./components/pages/Roster";
 import { RouteGuard } from "./router/RouteGuard";
 import { Leaderboard } from "./components/pages/LeaderBoard";
 import { BattlePage } from "./components/pages/BattlePage";
-import { ProtectedRout } from "./router/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
