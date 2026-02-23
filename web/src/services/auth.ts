@@ -12,7 +12,7 @@ export const authService = {
   },
   getMe: async () => {
     const { data } = await api.get<{ user: User }>("/me");
-    return data.user ?? null;
+    return data.user || data || null;
   },
   logout: async (refreshToken: string) => {
     await api.post("/logout", { refreshToken });
