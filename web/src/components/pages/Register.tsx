@@ -18,7 +18,7 @@ export const Register = () => {
 
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [user, isLoading, navigate]);
 
