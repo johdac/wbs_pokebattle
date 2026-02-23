@@ -8,7 +8,7 @@ import { Roster } from "./components/pages/Roster";
 import { RouteGuard } from "./router/RouteGuard";
 import { Leaderboard } from "./components/pages/LeaderBoard";
 import { BattlePage } from "./components/pages/BattlePage";
-
+import { NotFoundPage } from "./components/pages/notFound";
 export const router = createBrowserRouter([
   {
     path: "/",
@@ -44,5 +44,9 @@ export const router = createBrowserRouter([
         ],
       },
     ],
+  },
+  {
+    path: "*",
+    element: <NotFoundPage />,
   },
 ]);
