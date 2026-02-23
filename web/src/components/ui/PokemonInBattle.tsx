@@ -38,10 +38,10 @@ export const PokemonInBattle = ({
           setGameState={setGameState}
           setPlayerCreatedInsults={setPlayerCreatedInsults}
         ></ChatBox>
-        <div className="flex justify-center absolute bottom-25 left-0 right-0">
+        <div className="flex justify-center absolute bottom-5 lg:bottom-10 xl:bottom-15 left-0 right-0">
           <div className={`flex items-end justify-center`}>
             <img
-              className={`pokemon ${!isPlayer && "scale-x-[-1]"}`}
+              className={`${!isPlayer ? "pokemonOpponent" : "pokemonPlayer"}`}
               src={`https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/showdown/${pokemon.id}.gif`}
             ></img>
           </div>

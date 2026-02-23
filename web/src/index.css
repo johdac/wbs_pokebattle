@@ -86,8 +86,12 @@
     @apply text-primary underline-offset-4 hover:underline;
   }
 
-  .pokemon {
-    transform: scale(2);
+  .pokemonOpponent {
+    @apply -scale-x-100 sm:-scale-x-120 sm:scale-y-120 md:-scale-x-150 md:scale-y-150 lg:-scale-x-200 lg:scale-y-200;
+  }
+
+  .pokemonPlayer {
+    @apply sm:scale-x-120 sm:scale-y-120 md:scale-x-150 md:scale-y-150 lg:scale-x-200 lg:scale-y-200;
   }
 }
 /* 3. Global Base Styles */

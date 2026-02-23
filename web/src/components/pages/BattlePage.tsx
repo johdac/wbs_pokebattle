@@ -8,8 +8,10 @@ import { useEffect, useState } from "react";
 import { useParams } from "react-router";
 import { PokemonInBattle } from "../ui/PokemonInBattle";
 import type { Insult, GameState } from "@/types/index";
+import { useAuth } from "@/context/AuthContext";
 
-export const MAX_INSULT = 20;
+export const MAX_INSULT = 60;
+const API_URL = import.meta.env.VITE_API_SERVER_URL;
 
 export const BattlePage = () => {
   const [gameState, setGameState] = useState<GameState>("loadingOpponent");
@@ -25,6 +27,7 @@ export const BattlePage = () => {
     Insult[]
   >([]);
   const { id: playerId } = useParams<{ id: string }>(); // Get playerId from url params
+  const auth = useAuth();
 
   // Request data from pokemon api to get the total count of pokemon
   const { data: listData } = useQuery({
@@ -70,8 +73,12 @@ export const BattlePage = () => {
     }
   };
 
+  const startGame = () => {
+    setGameState("gettingOpponentsInsult");
+  };
+
   const getInsult = async () => {
-    const res = await fetch(`http://localhost:3000/ai/create-insult/`, {
+    const res = await fetch(`${API_URL}/ai/create-insult/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/JSON",
@@ -94,7 +101,7 @@ export const BattlePage = () => {
     receiver: string,
     insult: string,
   ) => {
-    const res = await fetch(`http://localhost:3000/ai/rate-insult/`, {
+    const res = await fetch(`${API_URL}/ai/rate-insult/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/JSON",
@@ -110,39 +117,72 @@ export const BattlePage = () => {
     return data;
   };
 
-  const startGame = () => {
-    setGameState("gettingOpponentsInsult");
+  const sumUpInsult = async () => {
+    // Helper to neve set new insult higher then MAX_INSULT
+    const capInsult = (prev: number, add: string) => {
+      if (prev + Number(add) > MAX_INSULT) return MAX_INSULT;
+      return prev + Number(add);
+    };
+
+    // Get Insult damage from api
+    const insultDamage = await rateInsult(
+      gameState === "ratingOpponentsInsult"
+        ? opponentPokemon?.name!
+        : playerPokemon?.name!,
+      gameState === "ratingOpponentsInsult"
+        ? playerPokemon?.name!
+        : opponentPokemon?.name!,
+      gameState === "ratingOpponentsInsult"
+        ? opponentCreatedInsults[opponentCreatedInsults.length - 1].insult
+        : playerCreatedInsults[opponentCreatedInsults.length - 1].insult,
+    );
+
+    // Apply insult damage
+    gameState === "ratingOpponentsInsult"
+      ? setPlayerInsultLevel((prev) => capInsult(prev, insultDamage))
+      : setOpponentInsultLevel((prev) => capInsult(prev, insultDamage));
+
+    // Set new game state
+    gameState === "ratingOpponentsInsult"
+      ? setGameState("gettingPlayersInsult")
+      : setGameState("gettingOpponentsInsult");
+  };
+
+  const postScore = async () => {
+    const userId = auth.user?._id;
+    const accessToken = localStorage.getItem("accessToken");
+    const res = await fetch(`${API_URL}/scores`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/JSON",
+        Authorization: `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify({
+        userId: userId,
+        score: (opponentInsultLevel - playerInsultLevel) * 1000,
+      }),
+    });
+    if (!res.ok) throw new Error("Connection to API failed");
+    const data = await res.json();
+    console.log(data);
   };
 
   useEffect(() => {
-    if (playerInsultLevel >= MAX_INSULT || opponentInsultLevel >= MAX_INSULT) {
+    if (gameState === "gameOver") {
+      postScore();
+    } else if (
+      playerInsultLevel >= MAX_INSULT ||
+      opponentInsultLevel >= MAX_INSULT
+    ) {
       setGameState("gameOver");
     } else if (gameState === "loadingOpponent" && listData?.count) {
       fetchRandomOpponent();
     } else if (gameState === "gettingOpponentsInsult") {
       getInsult();
     } else if (gameState === "ratingOpponentsInsult") {
-      const rate = async () => {
-        const insultDamage = await rateInsult(
-          opponentPokemon?.name!,
-          playerPokemon?.name!,
-          opponentCreatedInsults[opponentCreatedInsults.length - 1].insult,
-        );
-        setPlayerInsultLevel((prev) => prev + Number(insultDamage));
-        setGameState("gettingPlayersInsult");
-      };
-      rate();
+      sumUpInsult();
     } else if (gameState === "ratingPlayersInsult") {
-      const rate = async () => {
-        const insultDamage = await rateInsult(
-          playerPokemon?.name!,
-          opponentPokemon?.name!,
-          playerCreatedInsults[playerCreatedInsults.length - 1].insult,
-        );
-        setOpponentInsultLevel((prev) => prev + Number(insultDamage));
-        setGameState("gettingOpponentsInsult");
-      };
-      rate();
+      sumUpInsult();
     }
     console.log(gameState);
   }, [gameState, listData?.count]);
@@ -152,16 +192,39 @@ export const BattlePage = () => {
       {
         <div className="container mx-auto px-4 py-8">
           <div className="relative w-full rounded-md overflow-hidden">
-            <img src="/img/bg1.png" alt="" />
+            {/* The image container defines the complete space we have. All elements are positioned absolute */}
+            <div className="h-[70vh] xl:h-auto">
+              <img
+                src="/img/bg1.png"
+                alt=""
+                className="w-full h-full object-cover"
+              />
+            </div>
             {gameState === "loadingOpponent" && (
-              <div className="absolute top-1/2 left-1/2 -ml-50">
-                <img src="/img/loading.png" className="w-100 " alt="" />
+              <div className="absolute top-1/2 left-1/2 -ml-25 lg:-ml-50">
+                <img src="/img/loading.png" className="w-50 lg:w-100 " alt="" />
               </div>
             )}
             {gameState === "gameOver" && (
-              <div className="absolute top-1/2 left-1/2 -ml-50 z-50">
-                <img src="/img/gameover.png" className="w-100 " alt="" />
-              </div>
+              <>
+                {playerInsultLevel <= opponentInsultLevel ? (
+                  <div className="absolute top-1/2 left-1/2 -ml-20 lg:-ml-30 z-50">
+                    <img
+                      src="/img/youwin.png"
+                      className="w-40 lg:w-60 "
+                      alt=""
+                    />
+                  </div>
+                ) : (
+                  <div className="absolute top-1/2 left-1/2 -ml-25 lg:-ml-50 z-50">
+                    <img
+                      src="/img/gameover.png"
+                      className="w-50 lg:w-100 "
+                      alt=""
+                    />
+                  </div>
+                )}
+              </>
             )}
             {gameState === "readyToStart" && (
               <div
@@ -171,7 +234,7 @@ export const BattlePage = () => {
                 <img src="/img/start.png" className="w-50" alt="" />
               </div>
             )}
-            <div className="absolute h-full top-0 flex gap-20  justify-center w-full z-10">
+            <div className="absolute h-full top-0 flex gap-2 md:gap-4 lg:gap-20  justify-center w-full z-10 p-2 lg:p-6">
               <div className="relative w-90">
                 {opponentPokemon && (
                   <PokemonInBattle
