@@ -138,14 +138,18 @@ export const BattlePage = () => {
     );
 
     // Apply insult damage
-    gameState === "ratingOpponentsInsult"
-      ? setPlayerInsultLevel((prev) => capInsult(prev, insultDamage))
-      : setOpponentInsultLevel((prev) => capInsult(prev, insultDamage));
+    if (gameState === "ratingOpponentsInsult") {
+      setPlayerInsultLevel((prev) => capInsult(prev, insultDamage));
+    } else {
+      setOpponentInsultLevel((prev) => capInsult(prev, insultDamage));
+    }
 
     // Set new game state
-    gameState === "ratingOpponentsInsult"
-      ? setGameState("gettingPlayersInsult")
-      : setGameState("gettingOpponentsInsult");
+    if (gameState === "ratingOpponentsInsult") {
+      setGameState("gettingPlayersInsult");
+    } else {
+      setGameState("gettingOpponentsInsult");
+    }
   };
 
   const postScore = async () => {
