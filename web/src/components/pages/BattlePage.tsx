@@ -28,6 +28,7 @@ export const BattlePage = () => {
   >([]);
   const { id: playerId } = useParams<{ id: string }>(); // Get playerId from url params
   const auth = useAuth();
+  const accessToken = localStorage.getItem("accessToken");
 
   // Request data from pokemon api to get the total count of pokemon
   const { data: listData } = useQuery({
@@ -74,7 +75,7 @@ export const BattlePage = () => {
   };
 
   const startGame = () => {
-    setGameState("gettingOpponentsInsult");
+    setGameState("gettingPlayersInsult");
   };
 
   const getInsult = async () => {
@@ -82,6 +83,7 @@ export const BattlePage = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/JSON",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         playerPokemon: `${playerPokemon?.name}`,
@@ -105,6 +107,7 @@ export const BattlePage = () => {
       method: "POST",
       headers: {
         "Content-Type": "application/JSON",
+        Authorization: `Bearer ${accessToken}`,
       },
       body: JSON.stringify({
         actor: actor,
@@ -124,6 +127,8 @@ export const BattlePage = () => {
       return prev + Number(add);
     };
 
+    console.log("playerCreatedInsults", playerCreatedInsults);
+
     // Get Insult damage from api
     const insultDamage = await rateInsult(
       gameState === "ratingOpponentsInsult"
@@ -134,7 +139,7 @@ export const BattlePage = () => {
         : (opponentPokemon?.name ?? ""),
       gameState === "ratingOpponentsInsult"
         ? opponentCreatedInsults[opponentCreatedInsults.length - 1].insult
-        : playerCreatedInsults[opponentCreatedInsults.length - 1].insult,
+        : playerCreatedInsults[playerCreatedInsults.length - 1].insult,
     );
 
     // Apply insult damage
@@ -154,7 +159,6 @@ export const BattlePage = () => {
 
   const postScore = async () => {
     const userId = auth.user?._id;
-    const accessToken = localStorage.getItem("accessToken");
     const res = await fetch(`${API_URL}/scores`, {
       method: "POST",
       headers: {
