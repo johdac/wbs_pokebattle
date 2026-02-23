@@ -6,7 +6,7 @@ import { errorHandler, notFoundHandler } from "#middleware";
 import { CLIENT_BASE_URL } from "#config";
 
 const app = express();
-const port = process.env.API_PORT;
+const port = process.env.PORT;
 
 app.use(
   cors({

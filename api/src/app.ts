@@ -5,7 +5,7 @@ import { scoreRoutes, aiRoutes } from "#routes";
 import cors from "cors";
 
 const app = express();
-const port = process.env.API_PORT;
+const port = process.env.PORT;
 
 app.use(
   cors({
