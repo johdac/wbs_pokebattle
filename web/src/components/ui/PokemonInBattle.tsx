@@ -1,6 +1,6 @@
 import type { PokemonDetail } from "@/lib/pokemon";
 import { ChatBox } from "./ChatBox";
-import type { Insult, GameState } from "@/types";
+import type { Insult, GameState } from "@/types/index";
 import { InsultBar } from "./InsultBar";
 
 type PokemonInBattleProps = {

@@ -1,4 +1,4 @@
-import type { GameState, Insult } from "@/types";
+import type { GameState, Insult } from "@/types/index";
 import { ChatCard } from "./ChatCard";
 import { useEffect, useRef, useState } from "react";
 
@@ -41,7 +41,7 @@ export const ChatBox = ({
     <>
       <div
         ref={containerRef}
-        className={`chat ${isPlayer ? "chat-start" : "chat-end"} h-60 w-90 overflow-y-auto px-2`}
+        className={`chat ${isPlayer ? "chat-start" : "chat-end"} h-60 w-full overflow-y-auto px-2`}
       >
         {messages.map((message) => {
           return <ChatCard message={message} isPlayer={isPlayer}></ChatCard>;

@@ -1,4 +1,4 @@
-import type { Insult } from "@/types";
+import type { Insult } from "@/types/index";
 
 type ChatCardProps = {
   message: Insult;

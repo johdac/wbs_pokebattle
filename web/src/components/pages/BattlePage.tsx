@@ -6,8 +6,10 @@ import {
 import { useQuery } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { useParams } from "react-router";
-import type { Insult, GameState } from "@/types";
 import { PokemonInBattle } from "../ui/PokemonInBattle";
+import type { Insult, GameState } from "@/types/index";
+
+export const MAX_INSULT = 20;
 
 export const BattlePage = () => {
   const [gameState, setGameState] = useState<GameState>("loadingOpponent");
@@ -62,10 +64,10 @@ export const BattlePage = () => {
       // Store the data for the pokemon
       const data = await res.json();
       await new Promise((resolve) => setTimeout(resolve, 2000));
+      setGameState("readyToStart");
       setOpponentPokemon(data);
       break;
     }
-    setGameState("readyToStart");
   };
 
   const getInsult = async () => {
@@ -113,7 +115,7 @@ export const BattlePage = () => {
   };
 
   useEffect(() => {
-    if (playerInsultLevel >= 100 || opponentInsultLevel >= 100) {
+    if (playerInsultLevel >= MAX_INSULT || opponentInsultLevel >= MAX_INSULT) {
       setGameState("gameOver");
     } else if (gameState === "loadingOpponent" && listData?.count) {
       fetchRandomOpponent();
@@ -169,9 +171,9 @@ export const BattlePage = () => {
                 <img src="/img/start.png" className="w-50" alt="" />
               </div>
             )}
-            {playerPokemon && opponentPokemon && (
-              <div className="absolute h-full top-0 flex gap-20  justify-center w-full z-10">
-                <div className="relative">
+            <div className="absolute h-full top-0 flex gap-20  justify-center w-full z-10">
+              <div className="relative w-90">
+                {opponentPokemon && (
                   <PokemonInBattle
                     pokemon={opponentPokemon}
                     insultLevel={opponentInsultLevel}
@@ -181,8 +183,10 @@ export const BattlePage = () => {
                     setGameState={setGameState}
                     setPlayerCreatedInsults={setPlayerCreatedInsults}
                   />
-                </div>
-                <div className="relative">
+                )}
+              </div>
+              <div className="relative w-90">
+                {playerPokemon && (
                   <PokemonInBattle
                     pokemon={playerPokemon}
                     insultLevel={playerInsultLevel}
@@ -192,9 +196,9 @@ export const BattlePage = () => {
                     setGameState={setGameState}
                     setPlayerCreatedInsults={setPlayerCreatedInsults}
                   />
-                </div>
+                )}
               </div>
-            )}
+            </div>
           </div>
         </div>
       }
