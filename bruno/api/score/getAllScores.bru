@@ -5,13 +5,13 @@ meta {
 }
 
 get {
-  url: {{api}}/scores
+  url: {{apiUrl}}/scores
   body: none
   auth: none
 }
 
 headers {
-  Authorization: Bearer {{jwtToken}}
+  Authorization: Bearer {{accessToken}}
 }
 
 settings {

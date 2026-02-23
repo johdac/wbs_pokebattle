@@ -134,23 +134,25 @@ export const PokemonDetail = () => {
             </div>
           </div>
 
-          <button
-            onClick={handleAdd}
-            disabled={inRoster}
-            className={`w-full ${inRoster ? "btn-added" : "btn-default"}`}
-          >
-            {inRoster ? (
-              <>
+          {inRoster ? (
+            <div className="flex gap-4">
+              <button disabled className={`btn-added w-1/2`}>
                 <i className="fa-solid fa-check mr-2"></i>
                 In Roster
-              </>
-            ) : (
-              <>
-                <i className="fa-solid fa-plus mr-2"></i>
-                Add to Roster
-              </>
-            )}
-          </button>
+              </button>
+              <Link to={`/battle/${pokemon.id}`} className="w-1/2">
+                <button className={`btn-fight cursor-pointer w-full`}>
+                  <i className="fa-regular fa-hand-back-fist mr-2"></i>
+                  Fight!
+                </button>
+              </Link>
+            </div>
+          ) : (
+            <button onClick={handleAdd} className={`w-full btn-default`}>
+              <i className="fa-solid fa-plus mr-2"></i>
+              Add to Roster
+            </button>
+          )}
         </motion.div>
       </div>
     </div>

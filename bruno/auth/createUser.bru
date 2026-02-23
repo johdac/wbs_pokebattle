@@ -1,0 +1,30 @@
+meta {
+  name: createUser
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{authUrl}}/auth/register
+  body: json
+  auth: inherit
+}
+
+body:json {
+  {
+    "username": "DupliactedUserNameTesting",
+    "email": "{{email}}",
+    "password": "{{userPassword}}",
+    "confirmPassword": "{{userPassword}}"
+  }
+}
+
+vars:post-response {
+  accessToken: res.body.accessToken
+  refreshToken: res.body.refreshToken
+}
+
+settings {
+  encodeUrl: true
+  timeout: 0
+}

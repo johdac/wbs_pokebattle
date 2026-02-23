@@ -1,7 +1,7 @@
 import "#db";
 import express from "express";
 import { errorHandler } from "#middleware";
-import { scoreRoutes } from "#routes";
+import { scoreRoutes, aiRoutes } from "#routes";
 import cors from "cors";
 
 const app = express();
@@ -19,6 +19,7 @@ app.use(express.json());
 app.route("/").get((req, res) => {
   res.json("Hello World");
 });
+app.use("/ai", aiRoutes);
 app.use("/scores", scoreRoutes);
 app.use("*splat", (req, res) => {
   throw new Error("Not found", { cause: { status: 404 } });

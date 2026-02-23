@@ -7,6 +7,8 @@ import { Register } from "./components/pages/Register";
 import { Roster } from "./components/pages/Roster";
 import { RouteGuard } from "./router/RouteGuard";
 import { Leaderboard } from "./components/pages/LeaderBoard";
+import { BattlePage } from "./components/pages/BattlePage";
+import { ProtectedRout } from "./router/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
@@ -26,6 +28,10 @@ export const router = createBrowserRouter([
       {
         element: <AppLayout></AppLayout>,
         children: [
+          {
+            path: "/battle/:id",
+            element: <BattlePage></BattlePage>,
+          },
           { path: "/home", element: <Home></Home> },
           {
             path: "/pokemon/:id",
