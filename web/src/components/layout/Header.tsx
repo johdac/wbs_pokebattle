@@ -1,10 +1,9 @@
 import { Link } from "react-router";
-import { Home, Swords, Trophy, Users } from "lucide-react";
+import { Home, Trophy, Users } from "lucide-react";
 
 const navItems = [
   { to: "/", label: "Pokédex", icon: Home },
   { to: "/roster", label: "Roster", icon: Users },
-  { to: "/battle", label: "Battle", icon: Swords },
   { to: "/leaderboard", label: "Leaderboard", icon: Trophy },
 ];
 
