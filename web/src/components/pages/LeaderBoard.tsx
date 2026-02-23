@@ -1,15 +1,24 @@
 import { motion } from "framer-motion";
 import { Trophy, Medal } from "lucide-react";
-import { getLeaderboard } from "@/lib/store";
+import { useAuth } from "@/context/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { leaderboardService } from "@/services/score.service";
 
 export const Leaderboard = () => {
-  const leaderboard = getLeaderboard();
+  const { user } = useAuth();
+  const { data: leaderboard = [], isLoading } = useQuery({
+    queryKey: ["leaderboard"],
+    queryFn: leaderboardService.getTopScores,
+  });
 
   const rankStyles = [
-    "border-primary text-primary",
-    "border-accent text-accent",
-    "border-type-fire text-type-fire",
+    "border-yellow-400/50 bg-yellow-400/5 shadow-[0_0_15px_rgba(250,204,21,0.1)]",
+    "border-slate-400/50 bg-slate-400/5",
+    "border-amber-600/50 bg-amber-600/5",
   ];
+
+  if (isLoading)
+    return <div className="text-center p-10">Loading Rankings...</div>;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -22,41 +31,51 @@ export const Leaderboard = () => {
       </div>
 
       <div className="mx-auto mt-8 max-w-lg space-y-3">
-        {leaderboard.map((entry, i) => (
-          <motion.div
-            key={entry.name}
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            transition={{ delay: i * 0.08 }}
-            className={`flex items-center gap-4 rounded-xl border bg-card p-4 ${
-              i < 3 ? rankStyles[i] : "border-border"
-            }`}
-          >
-            <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary font-display text-sm font-bold text-foreground">
-              {i < 3 ? (
-                <Medal
-                  className={`h-8 w-8 ${
-                    i === 0
-                      ? "text-yellow-400"
-                      : i === 1
-                        ? "text-slate-400"
-                        : "text-amber-600"
-                  }`}
-                />
-              ) : (
-                i + 1
-              )}
-            </div>
-            <div className="flex-1">
-              <p className="font-display text-sm font-semibold text-foreground">
-                {entry.name}
+        {leaderboard.map((entry, i) => {
+          const isMe = entry.userId.id === user?._id;
+
+          return (
+            <motion.div
+              key={entry.id}
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: i * 0.08 }}
+              className={`flex items-center gap-4 rounded-xl border p-4 transition-colors ${
+                isMe
+                  ? "ring-2 ring-primary ring-offset-2 ring-offset-background"
+                  : ""
+              } ${i < 3 ? rankStyles[i] : "border-border bg-card"}`}
+            >
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-secondary font-display text-sm font-bold text-foreground">
+                {i < 3 ? (
+                  <Medal
+                    className={`h-6 w-6 ${
+                      i === 0
+                        ? "text-yellow-400"
+                        : i === 1
+                          ? "text-slate-400"
+                          : "text-amber-600"
+                    }`}
+                  />
+                ) : (
+                  i + 1
+                )}
+              </div>
+
+              <div className="flex-1">
+                <p
+                  className={`font-display text-sm font-semibold ${isMe ? "text-primary" : "text-foreground"}`}
+                >
+                  {entry.userId.username} {isMe && "(You)"}
+                </p>
+              </div>
+
+              <p className="font-display text-lg font-bold text-primary">
+                {entry.score.toLocaleString()}
               </p>
-            </div>
-            <p className="font-display text-lg font-bold text-primary">
-              {entry.score}
-            </p>
-          </motion.div>
-        ))}
+            </motion.div>
+          );
+        })}
       </div>
     </div>
   );
