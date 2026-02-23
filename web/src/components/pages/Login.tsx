@@ -86,7 +86,7 @@ export const Login = () => {
                 placeholder="trainer@pokebattle.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
@@ -102,7 +102,7 @@ export const Login = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
