@@ -127,11 +127,11 @@ export const BattlePage = () => {
     // Get Insult damage from api
     const insultDamage = await rateInsult(
       gameState === "ratingOpponentsInsult"
-        ? opponentPokemon?.name!
-        : playerPokemon?.name!,
+        ? (opponentPokemon?.name ?? "")
+        : (playerPokemon?.name ?? ""),
       gameState === "ratingOpponentsInsult"
-        ? playerPokemon?.name!
-        : opponentPokemon?.name!,
+        ? (playerPokemon?.name ?? "")
+        : (opponentPokemon?.name ?? ""),
       gameState === "ratingOpponentsInsult"
         ? opponentCreatedInsults[opponentCreatedInsults.length - 1].insult
         : playerCreatedInsults[opponentCreatedInsults.length - 1].insult,

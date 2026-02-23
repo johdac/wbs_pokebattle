@@ -25,3 +25,12 @@ declare global {
     confirmPassword: string;
   };
 }
+export interface LeaderboardEntry {
+  id: string;
+  score: number;
+  date: string;
+  userId: {
+    username: string;
+    id: string;
+  };
+}
