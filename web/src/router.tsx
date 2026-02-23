@@ -5,6 +5,8 @@ import { PokemonDetail } from "./components/pages/PokemonDetail";
 import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { Roster } from "./components/pages/Roster";
+import { RouteGuard } from "./router/RouteGuard";
+import { Leaderboard } from "./components/pages/LeaderBoard";
 import { BattlePage } from "./components/pages/BattlePage";
 import { ProtectedRout } from "./router/ProtectedRoute";
 
@@ -13,10 +15,15 @@ export const router = createBrowserRouter([
     path: "/",
     element: <Navigate to="/login" replace />,
   },
-  { path: "/login", element: <Login></Login> },
-  { path: "/register", element: <Register></Register> },
   {
-    element: <ProtectedRout />,
+    element: <RouteGuard type="public" redirectTo="/home" />,
+    children: [
+      { path: "/login", element: <Login></Login> },
+      { path: "/register", element: <Register></Register> },
+    ],
+  },
+  {
+    element: <RouteGuard type="protected" redirectTo="/login" />,
     children: [
       {
         element: <AppLayout></AppLayout>,
@@ -31,6 +38,10 @@ export const router = createBrowserRouter([
             element: <PokemonDetail></PokemonDetail>,
           },
           { path: "/roster", element: <Roster></Roster> },
+          {
+            path: "/leaderboard",
+            element: <Leaderboard></Leaderboard>,
+          },
         ],
       },
     ],

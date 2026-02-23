@@ -18,7 +18,7 @@ export const Register = () => {
 
   useEffect(() => {
     if (!isLoading && user) {
-      navigate("/home", { replace: true });
+      navigate("/", { replace: true });
     }
   }, [user, isLoading, navigate]);
 
@@ -102,7 +102,7 @@ export const Register = () => {
                 placeholder="AshKetchum99"
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
@@ -116,7 +116,7 @@ export const Register = () => {
                 placeholder="trainer@pokebattle.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default  pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
@@ -132,7 +132,7 @@ export const Register = () => {
                 placeholder="••••••••"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default  pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
@@ -148,7 +148,7 @@ export const Register = () => {
                 placeholder="••••••••"
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
-                className="pl-10 bg-secondary/50 border-border/50 focus:border-primary"
+                className="input-default  pl-10 bg-secondary/50 border-border/50 focus:border-primary"
               />
             </div>
           </div>
