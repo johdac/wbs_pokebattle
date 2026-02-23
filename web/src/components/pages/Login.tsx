@@ -1,16 +1,41 @@
 import { useState } from "react";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion } from "framer-motion";
 import { Mail, Lock } from "lucide-react";
 import loginPic from "../../assets/fig.jpg";
 import { pikachuImg } from "@/lib/pokemon";
+import { useAuth } from "@/context/AuthContext";
 
 export const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+
+  const { handleSignIn } = useAuth();
+  const navigate = useNavigate();
+
+  const onSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError("");
+
+    try {
+      await handleSignIn({
+        email,
+        password,
+      });
+      navigate("/home", { replace: true });
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      } else {
+        setError("Something went wrong during login.");
+      }
+    }
+  };
 
   return (
-    <div className="relative min-h-[calc(100vh-4rem)] w-full flex items-center justify-center overflow-hidden">
+    //min-h-[calc(100vh-4rem)]
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
       <div className="absolute inset-0 z-0">
         <img
           src={loginPic}
@@ -45,7 +70,13 @@ export const Login = () => {
             Sign in to continue your journey
           </div>
         </div>
-        <div className="space-y-4">
+        {/* Error Message*/}
+        {error && (
+          <div className="p-3 text-sm text-destructive bg-destructive/10 border border-destructive/20 rounded-lg">
+            {error}
+          </div>
+        )}
+        <form onSubmit={onSubmit} className="space-y-4">
           <div className="space-y-2">
             <label className="text-sm font-medium text-foreground">Email</label>
             <div className="relative">
@@ -76,10 +107,10 @@ export const Login = () => {
             </div>
           </div>
 
-          <button className="w-full rounded-xl px-4 py-2  gradient-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-primary">
+          <button className="w-full cursor-pointer  rounded-xl px-4 py-2  gradient-primary text-primary-foreground font-semibold hover:opacity-90 transition-opacity glow-primary">
             Sign In
           </button>
-        </div>
+        </form>
         <div className="justify-center pt-5">
           <p className="text-sm text-muted-foreground">
             Don't have an account?

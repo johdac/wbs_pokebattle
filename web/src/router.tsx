@@ -1,4 +1,4 @@
-import { createBrowserRouter } from "react-router";
+import { createBrowserRouter, Navigate } from "react-router";
 import { AppLayout } from "./components/layout/AppLayout";
 import { Home } from "./components/pages/Home";
 import { PokemonDetail } from "./components/pages/PokemonDetail";
@@ -6,23 +6,33 @@ import { Login } from "./components/pages/Login";
 import { Register } from "./components/pages/Register";
 import { Roster } from "./components/pages/Roster";
 import { BattlePage } from "./components/pages/BattlePage";
+import { ProtectedRout } from "./router/ProtectedRoute";
 
 export const router = createBrowserRouter([
   {
-    element: <AppLayout></AppLayout>,
+    path: "/",
+    element: <Navigate to="/login" replace />,
+  },
+  { path: "/login", element: <Login></Login> },
+  { path: "/register", element: <Register></Register> },
+  {
+    element: <ProtectedRout />,
     children: [
-      { path: "/", element: <Home></Home> },
       {
-        path: "/battle/:id",
-        element: <BattlePage></BattlePage>,
+        element: <AppLayout></AppLayout>,
+        children: [
+          {
+            path: "/battle/:id",
+            element: <BattlePage></BattlePage>,
+          },
+          { path: "/home", element: <Home></Home> },
+          {
+            path: "/pokemon/:id",
+            element: <PokemonDetail></PokemonDetail>,
+          },
+          { path: "/roster", element: <Roster></Roster> },
+        ],
       },
-      { path: "/login", element: <Login></Login> },
-      {
-        path: "/pokemon/:id",
-        element: <PokemonDetail></PokemonDetail>,
-      },
-      { path: "/register", element: <Register></Register> },
-      { path: "/roster", element: <Roster></Roster> },
     ],
   },
 ]);
