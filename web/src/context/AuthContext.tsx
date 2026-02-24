@@ -48,19 +48,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const handleSignOut = async () => {
     try {
       const token = localStorage.getItem("refreshToken");
+      // Even if this returns 404, the catch/finally will handle the local cleanup
       if (token) {
         await authService.logout(token);
       }
     } catch (error) {
-      console.error("Server-side logout failed:", error);
+      console.log(error);
+      console.warn("Server-side logout failed, performing local cleanup only.");
     } finally {
       localStorage.removeItem("accessToken");
       localStorage.removeItem("refreshToken");
-      localStorage.clear();
-
       queryClient.setQueryData(["authUser"], null);
-      queryClient.clear();
-
+      queryClient.removeQueries({ queryKey: ["authUser"] });
       window.location.href = "/login";
     }
   };
