@@ -19,12 +19,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     enabled: !!localStorage.getItem("accessToken"),
   });
 
+  // const loginMutation = useMutation({
+  //   mutationFn: authService.login,
+  //   onSuccess: (data) => {
+  //     localStorage.setItem("accessToken", data.accessToken);
+  //     localStorage.setItem("refreshToken", data.refreshToken);
+  //     queryClient.invalidateQueries({ queryKey: ["authUser"] });
+  //   },
+  // });
   const loginMutation = useMutation({
     mutationFn: authService.login,
-    onSuccess: (data) => {
+    onSuccess: async (data) => {
       localStorage.setItem("accessToken", data.accessToken);
       localStorage.setItem("refreshToken", data.refreshToken);
-      queryClient.invalidateQueries({ queryKey: ["authUser"] });
+      const user = await authService.getMe();
+      queryClient.setQueryData(["authUser"], user);
     },
   });
 
@@ -36,12 +45,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       queryClient.invalidateQueries({ queryKey: ["authUser"] });
     },
   });
-
   const handleSignOut = async () => {
-    const token = localStorage.getItem("refreshToken");
-    if (token) await authService.logout(token);
-    localStorage.clear();
-    queryClient.setQueryData(["authUser"], null); // Clear user from cache
+    try {
+      const token = localStorage.getItem("refreshToken");
+      if (token) {
+        await authService.logout(token);
+      }
+    } catch (error) {
+      console.error("Server-side logout failed:", error);
+    } finally {
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.clear();
+
+      queryClient.setQueryData(["authUser"], null);
+      queryClient.clear();
+
+      window.location.href = "/login";
+    }
   };
 
   const value = {
