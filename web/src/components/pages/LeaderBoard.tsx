@@ -8,9 +8,11 @@ export const Leaderboard = () => {
   const { user } = useAuth();
   const { data: leaderboard = [], isLoading } = useQuery({
     queryKey: ["leaderboard"],
-    queryFn: leaderboardService.getTopScores,
+    queryFn: async () => {
+      const data = await leaderboardService.getTopScores();
+      return data.slice(0, 10);
+    },
   });
-
   const rankStyles = [
     "border-yellow-400/50 bg-yellow-400/5 shadow-[0_0_15px_rgba(250,204,21,0.1)]",
     "border-slate-400/50 bg-slate-400/5",

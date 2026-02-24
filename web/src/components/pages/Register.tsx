@@ -32,7 +32,6 @@ export const Register = () => {
     }
 
     try {
-      console.log(username, email);
       await handleRegister({
         username,
         email,
